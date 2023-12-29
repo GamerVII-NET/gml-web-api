@@ -5,6 +5,7 @@ using Gml.WebApi.Models.Dtos.Profiles;
 using Gml.WebApi.Models.Enums.System;
 using GmlCore.Interfaces;
 using GmlCore.Interfaces.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -53,6 +54,7 @@ public class RequestHandler
     /// <param name="gmlManager">The GML manager object.</param>
     /// <param name="packProfileDto">The profile DTO containing client information.</param>
     /// <returns>An asynchronous task representing the packing process result.</returns>
+    [Authorize]
     public static async Task<IResult> PackProfile(IGmlManager gmlManager, PackProfileDto packProfileDto)
     {
         if (string.IsNullOrEmpty(packProfileDto.ClientName))
@@ -75,6 +77,7 @@ public class RequestHandler
     /// <param name="gmlManager">The GML manager.</param>
     /// <param name="removeProfile">The profile information to remove.</param>
     /// <returns>The result of the operation.</returns>
+    [Authorize]
     public static async Task<IResult> DeleteProfile(IGmlManager gmlManager, [FromBody] RemoveProfileDto removeProfile)
     {
         if (string.IsNullOrEmpty(removeProfile.ClientName))
@@ -99,6 +102,7 @@ public class RequestHandler
     /// Returns a task that represents the asynchronous operation.
     /// The task result contains the restored profile information as an <see cref="IResult"/>.
     /// </returns>
+    [Authorize]
     public static async Task<IResult> RestoreProfileInfo(IGmlManager gmlManager, ProfileCreateInfoDto profile)
     {
         if (string.IsNullOrEmpty(profile.ClientName))
@@ -175,6 +179,7 @@ public class RequestHandler
     /// <param name="gmlManager">The IGmlManager used to interact with profiles.</param>
     /// <param name="profile">The CreateProfileDto containing the profile details.</param>
     /// <returns>Returns an asynchronous task that represents the creation of the profile.</returns>
+    [Authorize]
     public static async Task<IResult> CreateProfile(IGmlManager gmlManager, CreateProfileDto profile)
     {
         var canAddProfile = await gmlManager.Profiles.CanAddProfile(profile.Name, profile.Version);
@@ -197,5 +202,4 @@ public class RequestHandler
             LaunchVersion = newProfile.LaunchVersion,
         });
     }
-
 }

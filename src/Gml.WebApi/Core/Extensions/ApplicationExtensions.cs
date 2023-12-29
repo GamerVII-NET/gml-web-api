@@ -3,6 +3,7 @@ using Gml.WebApi.Core.Handlers;
 using GmlCore.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.OpenApi.Models;
 
 namespace Gml.WebApi.Core.Extensions;
 
@@ -18,6 +19,29 @@ public static class ApplicationExtensions
 
         builder.Services.AddSingleton<IGmlManager>(_ => new GmlManager(new GmlSettings(configuration, directory)));
 
+        builder.Services.AddCors(options => options.AddPolicy("CorsPolicy",
+            policyBuilder =>
+            {
+                policyBuilder.WithOrigins("http://localhost:8080");
+            }));
+
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Gml.Web.Api",
+                Description = "Api for administration yours game profiles",
+                Version = "v1"
+            });
+
+            options.AddSecurityDefinition("Basic", new OpenApiSecurityScheme
+            {
+                In = ParameterLocation.Header,
+                Description = "Please",
+            });
+
+        });
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -26,7 +50,6 @@ public static class ApplicationExtensions
 
     public static WebApplication RegisterRoutes(this WebApplication app)
     {
-
         app.UseSwagger();
         app.UseSwaggerUI();
 
@@ -34,7 +57,7 @@ public static class ApplicationExtensions
 
         #region Profiles
 
-        app.MapGet( "/api/profiles", RequestHandler.GetClients);
+        app.MapGet("/api/profiles", RequestHandler.GetClients);
         app.MapPost("/api/profiles", RequestHandler.CreateProfile);
         app.MapDelete("/api/profiles", RequestHandler.DeleteProfile);
 
@@ -55,6 +78,8 @@ public static class ApplicationExtensions
 
     public static WebApplication AddMiddlewares(this WebApplication app)
     {
+        app.UseCors("CorsPolicy");
+
         return app;
     }
 }
